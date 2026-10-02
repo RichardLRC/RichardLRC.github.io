@@ -157,6 +157,61 @@ html {
   scroll-margin-top: 24px;
 }
 
+.experience-section {
+  margin: 28px 0;
+}
+
+.experience-group {
+  margin-top: 18px;
+}
+
+.experience-group + .experience-group {
+  margin-top: 26px;
+}
+
+.experience-group h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.experience-entry {
+  display: grid;
+  grid-template-columns: 136px minmax(0, 1fr);
+  gap: 18px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.experience-date {
+  color: #6e3519;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: nowrap;
+}
+
+.experience-details p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.experience-institution {
+  font-weight: 700;
+}
+
+.experience-details .experience-advisor {
+  margin-top: 4px;
+  color: #555;
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .experience-entry {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
 .section-drip-nav {
   position: fixed;
   top: 50%;
