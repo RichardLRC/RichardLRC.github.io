@@ -197,6 +197,16 @@
               margin: 12px 0 0;
               line-height: 1.5;
             }
+            .publication-award {
+              display: inline-block;
+              margin-left: 10px;
+              color: #c62828;
+              font-weight: 700;
+            }
+            .publication-link-disabled {
+              color: #6b7280;
+              cursor: default;
+            }
             @media (max-width: 600px) {
               #publications .publications-table,
               #publications .publications-table tbody,
@@ -252,6 +262,8 @@
             <button class="tag-btn" type="button" data-tag="ai4science">AI4Science</button>
             <button class="tag-btn" type="button" data-tag="peer-review">Peer Review</button>
             <button class="tag-btn" type="button" data-tag="llm-evaluation">LLM Evaluation</button>
+            <button class="tag-btn" type="button" data-tag="multimodal">Multimodal</button>
+            <button class="tag-btn" type="button" data-tag="graphrag">GraphRAG</button>
           </div>
 
           <script>
@@ -330,6 +342,28 @@
 
           <table class="publications-table" style="width:100%;border:0px;border-spacing:0 16px;border-collapse:separate;margin-right:auto;margin-left:auto;">
             <tbody>
+              <tr data-tags="multimodal,graphrag">
+                <td class="publication-image-cell">
+                  <a href="https://richardlrc.github.io/TopoGraphRAG-Bench/assets/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size framework">
+                    <img class="publication-thumbnail" src="https://richardlrc.github.io/TopoGraphRAG-Bench/assets/overview.png" width="1455" height="737" loading="lazy" decoding="async" alt="TopoGraphRAG-Bench construction pipeline for single-hop retrieval, bridge-chain reasoning, multi-source synthesis, and counterfactual topology validation.">
+                  </a>
+                </td>
+                <td class="publication-detail-cell">
+                  <papertitle>TopoGraphRAG-Bench: Evaluating Multimodal GraphRAG on Layout-Grounded Evidence Reasoning</papertitle>
+                  <p class="publication-authors"><strong>Ruochi Li</strong>, Jianzhe Lin, Haoxuan Zhang, Haihua Chen, Junhua Ding, Edward Gehringer, Yang Zhang</p>
+                  <em><strong>NeurIPS 2026</strong></em>
+                  <p class="publication-links">
+                    <span class="publication-link-disabled" aria-disabled="true" title="Paper not yet publicly available">Paper (coming soon)</span>
+                    &nbsp;/&nbsp;
+                    <a href="https://richardlrc.github.io/TopoGraphRAG-Bench/" target="_blank" rel="noopener noreferrer">Homepage</a>
+                    &nbsp;/&nbsp;
+                    <a href="https://github.com/RichardLRC/TopoGraphRAG-Bench/" target="_blank" rel="noopener noreferrer">Code</a>
+                    &nbsp;/&nbsp;
+                    <a href="https://huggingface.co/datasets/diandianone123/topographrag-bench" target="_blank" rel="noopener noreferrer">Dataset</a>
+                  </p>
+                  <p class="publication-summary">A topology-aware benchmark for evaluating layout-grounded multimodal evidence retrieval and reasoning across text, figures, and tables.</p>
+                </td>
+              </tr>
               <tr data-tags="ai4science,peer-review,llm-evaluation">
                 <td class="publication-image-cell">
                   <a href="images/paper/icdm-framework.png" target="_blank" rel="noopener noreferrer" title="View full-size framework">
@@ -342,6 +376,7 @@
                   </a>
                   <p class="publication-authors"><strong>Ruochi Li</strong>, Haoxuan Zhang, Edward Gehringer, Ting Xiao, Junhua Ding, Haihua Chen</p>
                   <em><strong>ICDM 2025</strong></em>
+                  <span class="publication-award">Best Poster Award</span>
                   <p class="publication-links">
                     <a href="https://arxiv.org/abs/2509.19326" target="_blank" rel="noopener noreferrer">Paper</a>
                     &nbsp;/&nbsp;
