@@ -156,6 +156,49 @@
               background: rgba(251, 165, 36, 0.14);
               color: #6e3519;
             }
+            .publication-scroll-caption {
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: space-between;
+              gap: 6px 16px;
+              margin: 12px 0 8px;
+              color: #777;
+              font-size: 12px;
+            }
+            .publication-scroll {
+              max-height: var(--publication-window-height, 1400px);
+              overflow-y: auto;
+              padding: 0 8px;
+              border: 1px solid rgba(0, 0, 0, 0.1);
+              border-radius: 12px;
+              background: #faf9f7;
+              scrollbar-gutter: stable;
+            }
+            .publication-scroll:focus-visible {
+              outline: 2px solid #ad7020;
+              outline-offset: 3px;
+            }
+            .publication-scroll::-webkit-scrollbar {
+              width: 8px;
+            }
+            .publication-scroll::-webkit-scrollbar-track {
+              background: #f2eee9;
+              border-radius: 8px;
+            }
+            .publication-scroll::-webkit-scrollbar-thumb {
+              background: #b8a38d;
+              border: 2px solid #f2eee9;
+              border-radius: 8px;
+            }
+            .publication-scroll::-webkit-scrollbar-thumb:hover {
+              background: #94775b;
+            }
+            @supports not selector(::-webkit-scrollbar) {
+              .publication-scroll {
+                scrollbar-width: thin;
+                scrollbar-color: #b8a38d #f2eee9;
+              }
+            }
             .publications-table tr[data-tags] > td {
               border-top: 1px solid rgba(0, 0, 0, 0.14);
               border-bottom: 1px solid rgba(0, 0, 0, 0.14);
@@ -171,6 +214,10 @@
             }
             .publications-table tr[data-tags][style*="lightyellow"] > td {
               background: lightyellow;
+            }
+            .publications-table tr.publication-text-only[data-tags] > td {
+              width: auto;
+              border-radius: 8px;
             }
 
             .publications-table .publication-image-cell {
@@ -208,6 +255,10 @@
               cursor: default;
             }
             @media (max-width: 600px) {
+              .publication-scroll {
+                max-height: var(--publication-window-height, 75vh);
+                padding: 0 6px;
+              }
               #publications .publications-table,
               #publications .publications-table tbody,
               #publications .publications-table tr[data-tags] {
@@ -217,6 +268,10 @@
               #publications .publications-table tr[data-tags] {
                 border: 1px solid rgba(0, 0, 0, 0.14);
                 border-radius: 8px;
+                margin: 16px 0;
+              }
+              #publications .publications-table tbody {
+                display: flow-root;
               }
               #publications .publications-table tr[data-tags] > td {
                 display: block;
@@ -265,30 +320,82 @@
             <button class="tag-btn" type="button" data-tag="ai-documentation">AI Documentation</button>
             <button class="tag-btn" type="button" data-tag="multimodal">Multimodal</button>
             <button class="tag-btn" type="button" data-tag="graphrag">GraphRAG</button>
+            <button class="tag-btn" type="button" data-tag="medical-nlp">Medical NLP</button>
           </div>
 
           <script>
-            // Inject counts into tag buttons (after full DOM is parsed)
+            // Keep the full list inside a window sized to the four featured papers.
             document.addEventListener('DOMContentLoaded', function() {
-              const rows = document.querySelectorAll('tr[data-tags]');
-              const total = rows.length;
-              document.querySelectorAll('.tag-btn').forEach(function(btn) {
-                const tag = btn.dataset.tag;
-                const count = tag === 'all' ? total : Array.from(rows).filter(r => r.dataset.tags.split(',').includes(tag)).length;
-                btn.insertAdjacentHTML('beforeend', '<span class="tag-count">' + count + '</span>');
-              });
-            });
+              const section = document.getElementById('publications');
+              const viewport = document.getElementById('publicationScroll');
+              const table = section.querySelector('.publications-table');
+              const rows = Array.from(table.querySelectorAll('tr[data-tags]'));
+              const buttons = Array.from(section.querySelectorAll('.tag-btn'));
+              const countLabel = document.getElementById('publicationCount');
+              const scrollHint = document.getElementById('publicationScrollHint');
 
-            // Tag filter
-            document.getElementById('tagFilter').addEventListener('click', function(e) {
-              const btn = e.target.closest('.tag-btn');
-              if (!btn) return;
-              document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-              btn.classList.add('active');
-              const tag = btn.dataset.tag;
-              document.querySelectorAll('tr[data-tags]').forEach(function(row) {
-                row.style.display = (tag === 'all' || row.dataset.tags.split(',').includes(tag)) ? '' : 'none';
+              buttons.forEach(function(btn) {
+                const tag = btn.dataset.tag;
+                const count = tag === 'all' ? rows.length : rows.filter(r => r.dataset.tags.split(',').includes(tag)).length;
+                btn.insertAdjacentHTML('beforeend', '<span class="tag-count">' + count + '</span>');
+                btn.setAttribute('aria-pressed', String(btn.classList.contains('active')));
               });
+
+              function updateScrollHint() {
+                const count = rows.filter(row => row.style.display !== 'none').length;
+                countLabel.textContent = count + (count === 1 ? ' publication' : ' publications');
+                scrollHint.hidden = viewport.scrollHeight <= viewport.clientHeight + 1;
+              }
+
+              function sizePublicationWindow() {
+                const previousDisplay = rows.map(row => row.style.display);
+                const previousScroll = viewport.scrollTop;
+                // Measure at the actual column width, even when a filter is active.
+                rows.forEach((row, index) => {
+                  row.style.display = index < 4 ? '' : 'none';
+                });
+                let height = Math.ceil(table.getBoundingClientRect().height);
+                if (window.matchMedia('(max-width: 600px)').matches) {
+                  height = Math.min(height, Math.max(280, Math.floor(window.innerHeight * 0.75)));
+                }
+                viewport.style.setProperty('--publication-window-height', height + 'px');
+                rows.forEach((row, index) => {
+                  row.style.display = previousDisplay[index];
+                });
+                viewport.scrollTop = previousScroll;
+                updateScrollHint();
+              }
+
+              document.getElementById('tagFilter').addEventListener('click', function(e) {
+                const btn = e.target.closest('.tag-btn');
+                if (!btn) return;
+                buttons.forEach(function(button) {
+                  const active = button === btn;
+                  button.classList.toggle('active', active);
+                  button.setAttribute('aria-pressed', String(active));
+                });
+                const tag = btn.dataset.tag;
+                rows.forEach(function(row) {
+                  row.style.display = (tag === 'all' || row.dataset.tags.split(',').includes(tag)) ? '' : 'none';
+                });
+                viewport.scrollTop = 0;
+                updateScrollHint();
+              });
+
+              let resizeFrame;
+              window.addEventListener('resize', function() {
+                cancelAnimationFrame(resizeFrame);
+                resizeFrame = requestAnimationFrame(sizePublicationWindow);
+              });
+              rows.slice(0, 4).forEach(function(row) {
+                row.querySelectorAll('img').forEach(function(img) {
+                  img.addEventListener('load', sizePublicationWindow);
+                });
+              });
+              sizePublicationWindow();
+              if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(sizePublicationWindow);
+              }
             });
 
             function copyText(text, event) {
@@ -341,6 +448,11 @@
             
           </script>
 
+          <div class="publication-scroll-caption">
+            <span id="publicationCount" aria-live="polite">9 publications</span>
+            <span id="publicationScrollHint">Scroll inside the list to explore more ↓</span>
+          </div>
+          <div class="publication-scroll" id="publicationScroll" tabindex="0" role="region" aria-label="Scrollable publications list" aria-describedby="publicationScrollHint">
           <table class="publications-table" style="width:100%;border:0px;border-spacing:0 16px;border-collapse:separate;margin-right:auto;margin-left:auto;">
             <tbody>
               <tr data-tags="multimodal,graphrag">
@@ -426,8 +538,80 @@
                   <p class="publication-summary">A systematic investigation of LLM-generated scientific peer reviews, combining semantic and graph-structural analyses to characterize their descriptive strengths, limitations in critical assessment, and sensitivity to paper quality.</p>
                 </td>
               </tr>
+              <tr class="publication-text-only" data-tags="ai4science,peer-review">
+                <td class="publication-detail-cell" colspan="2">
+                  <a href="https://arxiv.org/abs/2510.16549" target="_blank" rel="noopener noreferrer">
+                    <papertitle>ReviewGuard: Enhancing Deficient Peer Review Detection via LLM-Driven Data Augmentation</papertitle>
+                  </a>
+                  <p class="publication-authors">Haoxuan Zhang, <strong>Ruochi Li</strong>, Sarthak Shrestha, Shree Harshini Mamidala, Revanth Putta, Arka Krishan Aggarwal, Ting Xiao, Junhua Ding, Haihua Chen</p>
+                  <em><strong>JCDL 2025</strong></em>
+                  <p class="publication-links">
+                    <a href="https://arxiv.org/abs/2510.16549" target="_blank" rel="noopener noreferrer">Paper</a>
+                  </p>
+                  <p class="publication-summary">An LLM-driven framework for identifying deficient scientific peer reviews, combining human-validated annotation and targeted synthetic augmentation to strengthen automated review quality assessment.</p>
+                </td>
+              </tr>
+              <tr class="publication-text-only" data-tags="ai4science">
+                <td class="publication-detail-cell" colspan="2">
+                  <a href="https://arxiv.org/abs/2507.11810" target="_blank" rel="noopener noreferrer">
+                    <papertitle>Evolving Roles of LLMs in Scientific Innovation: Assistant, Collaborator, Scientist, and Evaluator</papertitle>
+                  </a>
+                  <p class="publication-authors">Haoxuan Zhang, <strong>Ruochi Li</strong>, Yang Zhang, Ting Xiao, Jiangping Chen, Junhua Ding, Haihua Chen</p>
+                  <em><strong>arXiv preprint, 2025</strong></em> <span>(updated 2026)</span>
+                  <p class="publication-links">
+                    <a href="https://arxiv.org/abs/2507.11810" target="_blank" rel="noopener noreferrer">Paper</a>
+                  </p>
+                  <p class="publication-summary">A role-based synthesis of LLMs in scientific innovation, examining how autonomy, cognitive function, and human oversight shape their capabilities as research assistants, collaborators, scientists, and evaluators.</p>
+                </td>
+              </tr>
+              <tr class="publication-text-only" data-tags="medical-nlp">
+                <td class="publication-detail-cell" colspan="2">
+                  <a href="https://doi.org/10.1016/j.jbi.2026.105093" target="_blank" rel="noopener noreferrer">
+                    <papertitle>Quality-aware multi-source data fusion and enhancement for Medical Concept Normalization using Large Language Models</papertitle>
+                  </a>
+                  <p class="publication-authors">Yuhan Zhou, <strong>Ruochi Li</strong>, Ana Cleveland, Junhua Ding, Kewei Sha, Haihua Chen</p>
+                  <em><strong>Journal of Biomedical Informatics, 2026</strong></em>
+                  <p class="publication-links">
+                    <a href="https://doi.org/10.1016/j.jbi.2026.105093" target="_blank" rel="noopener noreferrer">Paper</a>
+                    &nbsp;/&nbsp;
+                    <a href="https://github.com/yhZHOU515/DataFusion4MCN" target="_blank" rel="noopener noreferrer">Code</a>
+                  </p>
+                  <p class="publication-summary">A quality-aware framework for medical concept normalization, integrating controlled LLM-based augmentation with multi-source data fusion to expand concept coverage and address long-tailed clinical terminology.</p>
+                </td>
+              </tr>
+              <tr class="publication-text-only" data-tags="medical-nlp">
+                <td class="publication-detail-cell" colspan="2">
+                  <a href="https://doi.org/10.1016/j.jbi.2026.105005" target="_blank" rel="noopener noreferrer">
+                    <papertitle>A comprehensive survey on medical concept normalization: Datasets, techniques, applications, and future directions</papertitle>
+                  </a>
+                  <p class="publication-authors">Haihua Chen, Yuhan Zhou, <strong>Ruochi Li</strong>, Aryan Murthy Illa, Ana Cleveland, Junhua Ding</p>
+                  <em><strong>Journal of Biomedical Informatics, 2026</strong></em>
+                  <p class="publication-links">
+                    <a href="https://doi.org/10.1016/j.jbi.2026.105005" target="_blank" rel="noopener noreferrer">Paper</a>
+                    &nbsp;/&nbsp;
+                    <a href="https://github.com/haihua0913/awesome-mcn" target="_blank" rel="noopener noreferrer">Resources</a>
+                  </p>
+                  <p class="publication-summary">A comprehensive review of medical concept normalization, organizing datasets, ontologies, modeling paradigms, and evaluation practices to clarify the field's methodological evolution and open challenges.</p>
+                </td>
+              </tr>
+              <tr class="publication-text-only" data-tags="medical-nlp">
+                <td class="publication-detail-cell" colspan="2">
+                  <a href="https://doi.org/10.1016/j.jbi.2025.104812" target="_blank" rel="noopener noreferrer">
+                    <papertitle>Enhancing data quality in medical concept normalization through large language models</papertitle>
+                  </a>
+                  <p class="publication-authors">Haihua Chen, <strong>Ruochi Li</strong>, Ana Cleveland, Junhua Ding</p>
+                  <em><strong>Journal of Biomedical Informatics, 2025</strong></em>
+                  <p class="publication-links">
+                    <a href="https://doi.org/10.1016/j.jbi.2025.104812" target="_blank" rel="noopener noreferrer">Paper</a>
+                    &nbsp;/&nbsp;
+                    <a href="https://github.com/RichardLRC/mcn-data-quality-llm/tree/main/evaluation" target="_blank" rel="noopener noreferrer">Code</a>
+                  </p>
+                  <p class="publication-summary">A data-centric investigation of medical concept normalization, examining how LLM-based augmentation and systematic quality assessment affect dataset integrity, model performance, and the reliability of evaluation.</p>
+                </td>
+              </tr>
             </tbody>
           </table>
+          </div>
         </section>
 
 	        <table id="experience" class="page-section" width="100%" align="center" border="0" cellpadding="10"><tbody>
