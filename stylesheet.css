@@ -204,6 +204,10 @@ html {
   object-fit: contain;
 }
 
+.experience-logo-wide {
+  width: 128px;
+}
+
 .experience-details p {
   margin: 0;
   line-height: 1.55;
@@ -297,6 +301,11 @@ html {
 
   .experience-academic-entry {
     grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .experience-work-entry {
+    grid-template-columns: 136px minmax(0, 1fr);
     gap: 12px;
   }
 
