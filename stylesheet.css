@@ -190,6 +190,20 @@ html {
   white-space: nowrap;
 }
 
+.experience-school {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.experience-logo {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
 .experience-details p {
   margin: 0;
   line-height: 1.55;
