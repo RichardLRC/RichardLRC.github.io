@@ -208,6 +208,11 @@ html {
   width: 128px;
 }
 
+.experience-logo-meituan {
+  object-fit: cover;
+  object-position: left center;
+}
+
 .experience-details p {
   margin: 0;
   line-height: 1.55;
