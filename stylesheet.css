@@ -227,10 +227,19 @@ html {
   font-weight: 600;
 }
 
-.service-placeholder {
+.service-list {
   margin: 0;
-  color: #777;
-  font-size: 13px;
+  padding-left: 18px;
+  line-height: 1.55;
+}
+
+.service-list li + li {
+  margin-top: 6px;
+}
+
+.service-role {
+  margin: 0 0 10px;
+  color: #555;
   line-height: 1.55;
 }
 
