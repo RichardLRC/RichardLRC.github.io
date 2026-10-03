@@ -257,6 +257,38 @@ html {
   line-height: 1.55;
 }
 
+.awards-section {
+  margin: 28px 0;
+}
+
+.awards-list {
+  margin-top: 18px;
+}
+
+.award-entry {
+  display: grid;
+  grid-template-columns: 136px minmax(0, 1fr);
+  gap: 18px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.award-year {
+  color: #6e3519;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: nowrap;
+}
+
+.award-details p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.award-title {
+  font-weight: 700;
+}
+
 @media (max-width: 600px) {
   .experience-entry {
     grid-template-columns: 1fr;
@@ -271,6 +303,11 @@ html {
   .service-groups {
     grid-template-columns: 1fr;
     gap: 18px;
+  }
+
+  .award-entry {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 }
 
