@@ -190,11 +190,11 @@ html {
   white-space: nowrap;
 }
 
-.experience-school {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  gap: 16px;
-  align-items: start;
+.experience-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .experience-logo {
@@ -261,6 +261,11 @@ html {
   .experience-entry {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .experience-academic-entry {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
   }
 
   .service-groups {
